@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Quản lý Chi tiêu Cá nhân</title>
+<style>
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+    padding: 20px;
+    background: #f2f4f8;
+    color: #333;
+  }
+
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #1976d2;
+    color: white;
+    padding: 15px 20px;
+    border-radius: 8px;
+  }
+
+  header h2 {
+    margin: 0;
+  }
+
+  #logoutBtn {
+    background: #f44336;
+    border: none;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  form, #summaryBox {
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    margin: 20px 0;
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
+  }
+
+  input, select, button {
+    padding: 10px;
+    margin: 8px 4px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+  }
+
+  button {
+    background: #1976d2;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+
+  #transactionTable {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    margin-top: 20px;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  #transactionTable th {
+    background: #1976d2;
+    color: white;
+    padding: 10px;
+  }
+
+  #transactionTable td {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+  }
+
+  #pieChart {
+    max-width: 400px;
+    margin: auto;
+    display: block;
+  }
+
+  #filterBox {
+    margin-top: 20px;
+    background: white;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 0 4px rgba(0,0,0,0.1);
+  }
+</style>
+
+</head>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<body>
+  
+<button id="logoutBtn" style="float: right;">🚪 Đăng xuất</button>
+
+  <h2>💰 Thêm Giao dịch mới</h2>
+  <form id="transactionForm">
+    <input type="number" id="amount" placeholder="Số tiền (VND)" required>
+    <select id="type">
+      <option value="income">Thu nhập</option>
+      <option value="expense">Chi tiêu</option>
+    </select>
+    <input type="text" id="category" placeholder="Danh mục (ví dụ: Ăn uống, Di chuyển...)" required>
+    <input type="date" id="date" required>
+    <textarea id="note" placeholder="Ghi chú..."></textarea>
+    <button type="submit">➕ Thêm Giao dịch</button>
+  </form>
+<section id="summaryBox" style="margin-top: 20px;">
+  <h3>📊 Thống kê tháng <span id="currentMonth"></span></h3>
+  <p>✅ Tổng thu nhập: <strong id="totalIncome">0</strong> VND</p>
+  <p>❌ Tổng chi tiêu: <strong id="totalExpense">0</strong> VND</p>
+</section>
+<h3>📊 Biểu đồ thu vs chi</h3>
+<canvas id="pieChart" width="400" height="400"></canvas>
+<h3>📅 Lọc theo thời gian</h3>
+<input type="date" id="startDate">
+<input type="date" id="endDate">
+<button onclick="filterByDate()">Lọc</button>
+
+  <h2>📋 Danh sách Giao dịch</h2>
+  <table id="transactionTable">
+    <thead>
+      <tr>
+        <th>Ngày</th>
+        <th>Loại</th>
+        <th>Danh mục</th>
+        <th>Số tiền (VND)</th>
+        <th>Ghi chú</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Dữ liệu giao dịch sẽ hiển thị tại đây -->
+    </tbody>
+  </table>
+
+  <script>
+    // Đặt trong <script> đầu trang dashboard.html
+if (!localStorage.getItem("token")) {
+  alert("Bạn chưa đăng nhập!");
+  window.location.href = "login.html";
+}
+
+    // Load danh sách giao dịch
+    window.onload = function() {
+      const userId = 1; // Tạm thời cố định user_id
+      fetch(`http://localhost:3000/api/transactions?user_id=${userId}`)
+        .then(res => res.json())
+        .then(data => {
+          const tbody = document.querySelector("#transactionTable tbody");
+          tbody.innerHTML = '';
+          data.forEach(tran => {
+            const row = `<tr>
+              <td>${tran.date}</td>
+              <td>${tran.type === 'income' ? 'Thu nhập' : 'Chi tiêu'}</td>
+              <td>${tran.category}</td>
+              <td>${tran.amount.toLocaleString()}</td>
+              <td>${tran.note}</td>
+            </tr>`;
+            tbody.innerHTML += row;
+          });
+        });
+    };
+
+    // Xử lý thêm giao dịch
+    document.getElementById('transactionForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const user_id = 1;
+      const amount = document.getElementById('amount').value;
+      const type = document.getElementById('type').value;
+      const category = document.getElementById('category').value;
+      const date = document.getElementById('date').value;
+      const note = document.getElementById('note').value;
+
+      fetch('http://localhost:3000/api/transactions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id, category, type, amount, note, date
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        alert(data.message);
+        location.reload();
+      });
+    });
+    document.getElementById("logoutBtn")?.addEventListener("click", function () {
+  if (confirm("Bạn có chắc muốn đăng xuất không?")) {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user_id");
+    window.location.href = "login.html";
+  }
+});
+
+  </script>
+
+</body>
+</html>
