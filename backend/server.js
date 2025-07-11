@@ -16,7 +16,7 @@ app.use(bodyParser.json());
 const db = mysql.createConnection({
   host: 'localhost',
   user: 'root',
-  password: 'Maidung0911', // Nhập mật khẩu MySQL của bạn (nếu có)
+  password: 'Dung1911', 
   database: 'chi_tieu'
 });
 
@@ -73,15 +73,15 @@ app.post('/api/transactions', (req, res) => {
     res.json({ message: 'Thêm giao dịch thành công' });
   });
 });
-app.post('/api/transactions', (req, res) => {
-  const { user_id, category, type, amount, note, date } = req.body;
-
-  const sql = 'INSERT INTO transactions (user_id, category, type, amount, note, date) VALUES (?, ?, ?, ?, ?, ?)';
-  db.query(sql, [user_id, category, type, amount, note, date], (err) => {
-    if (err) {
-      console.error("❌ Lỗi khi thêm giao dịch:", err); // ← THÊM DÒNG NÀY
-      return res.status(500).json({ message: 'Lỗi khi thêm giao dịch' });
+app.delete('/api/transactions/:id', (req, res) => {
+  const id = req.params.id;
+  const sql = 'DELETE FROM transactions WHERE id = ?';
+  db.query(sql, [id], (err, result) => {
+    if (err) return res.status(500).json({ message: 'Lỗi xoá' });
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Không tìm thấy giao dịch để xoá' });
     }
-    res.json({ message: 'Thêm giao dịch thành công' });
+    res.json({ message: 'Đã xoá thành công' });
   });
 });
+

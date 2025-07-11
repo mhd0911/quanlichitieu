@@ -1,205 +1,1034 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <title>Quản lý Chi tiêu Cá nhân</title>
-<style>
-  body {
-    font-family: 'Segoe UI', sans-serif;
-    margin: 0;
-    padding: 20px;
-    background: #f2f4f8;
-    color: #333;
-  }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Chi tiêu Cá nhân</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" rel="stylesheet">
 
-  header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: #1976d2;
-    color: white;
-    padding: 15px 20px;
-    border-radius: 8px;
-  }
+    <style>
+        :root {
+            --primary-color: #4A90E2; /* Blue */
+            --primary-dark: #357ABD;
+            --secondary-color: #F8B400; /* Yellow for highlights */
+            --background-light: #F4F6F9;
+            --text-dark: #333;
+            --text-light: #666;
+            --border-color: #E0E0E0;
+            --success-color: #4CAF50; /* Green */
+            --danger-color: #F44336; /* Red */
+        }
 
-  header h2 {
-    margin: 0;
-  }
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: var(--background-light);
+            color: var(--text-dark);
+            display: flex; /* Use flexbox for main layout */
+            min-height: 100vh; /* Full viewport height */
+        }
 
-  #logoutBtn {
-    background: #f44336;
-    border: none;
-    color: white;
-    padding: 8px 16px;
-    border-radius: 6px;
-    cursor: pointer;
-  }
+        /* --- Sidebar --- */
+        .sidebar {
+            width: 250px;
+            background: white;
+            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px; /* Spacing between sections */
+            flex-shrink: 0; /* Don't shrink sidebar */
+        }
 
-  form, #summaryBox {
-    background: white;
-    padding: 15px;
-    border-radius: 10px;
-    margin: 20px 0;
-    box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
-  }
+        .sidebar-header {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 20px;
+        }
 
-  input, select, button {
-    padding: 10px;
-    margin: 8px 4px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-  }
+        .sidebar-nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
 
-  button {
-    background: #1976d2;
-    color: white;
-    border: none;
-    cursor: pointer;
-  }
+        .sidebar-nav li {
+            margin-bottom: 10px;
+        }
 
-  #transactionTable {
-    width: 100%;
-    border-collapse: collapse;
-    background: white;
-    margin-top: 20px;
-    border-radius: 8px;
-    overflow: hidden;
-  }
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            text-decoration: none;
+            color: var(--text-light);
+            font-weight: 500;
+            border-radius: 8px;
+            transition: background 0.2s, color 0.2s;
+        }
 
-  #transactionTable th {
-    background: #1976d2;
-    color: white;
-    padding: 10px;
-  }
+        .sidebar-nav a i {
+            margin-right: 10px;
+            font-size: 1.1rem;
+        }
 
-  #transactionTable td {
-    padding: 10px;
-    border-bottom: 1px solid #eee;
-  }
+        .sidebar-nav a:hover,
+        .sidebar-nav a.active {
+            background: var(--primary-color);
+            color: white;
+        }
 
-  #pieChart {
-    max-width: 400px;
-    margin: auto;
-    display: block;
-  }
+        .sidebar-section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 15px;
+            padding-left: 10px;
+        }
 
-  #filterBox {
-    margin-top: 20px;
-    background: white;
-    padding: 10px;
-    border-radius: 8px;
-    box-shadow: 0 0 4px rgba(0,0,0,0.1);
-  }
-</style>
+        /* --- Summary Box in Sidebar --- */
+        .summary-card {
+            background: var(--background-light);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.05);
+        }
 
+        .summary-card p {
+            margin: 8px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.95rem;
+        }
+
+        .summary-card p strong {
+            font-size: 1.1rem;
+        }
+
+        .summary-income {
+            color: var(--success-color);
+            font-weight: 600;
+        }
+
+        .summary-expense {
+            color: var(--danger-color);
+            font-weight: 600;
+        }
+
+        /* --- Main Content Area --- */
+        .main-content {
+            flex-grow: 1; /* Take remaining space */
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: flex-end; /* Push logout to the right */
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .top-bar .user-info {
+            position: relative;
+        }
+
+        .top-bar .user-info button {
+            background: none;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s;
+        }
+
+        .top-bar .user-info button:hover {
+            background: #e0e0e0;
+        }
+
+        .top-bar .user-info button i {
+            font-size: 1.2rem;
+            color: var(--primary-color);
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            list-style: none;
+            padding: 10px 0;
+            margin-top: 10px;
+            min-width: 150px;
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: opacity 0.2s ease-out, transform 0.2s ease-out, visibility 0.2s;
+        }
+
+        .user-info.active .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-menu li button {
+            width: 100%;
+            text-align: left;
+            background: none;
+            border: none;
+            padding: 10px 20px;
+            color: var(--text-dark);
+            cursor: pointer;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: background 0.2s;
+        }
+
+        .dropdown-menu li button:hover {
+            background: var(--background-light);
+        }
+
+        .dropdown-menu li button i {
+            color: var(--text-light);
+        }
+
+        .dropdown-menu li button.logout-btn-item {
+            color: var(--danger-color);
+        }
+
+        .dropdown-menu li button.logout-btn-item i {
+            color: var(--danger-color);
+        }
+
+        /* --- Cards --- */
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card h2, .card h3 {
+            margin-top: 0;
+            color: var(--primary-dark);
+            font-weight: 600;
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+        }
+        .card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+
+        /* --- Form Elements --- */
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-light);
+        }
+
+        input[type="number"],
+        input[type="text"],
+        input[type="date"],
+        select,
+        textarea {
+            width: calc(100% - 22px); /* Account for padding + border */
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            color: var(--text-dark);
+            background: var(--background-light);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+            outline: none;
+            background: white;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 18px;
+        }
+
+        .radio-group label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            font-weight: 400;
+            color: var(--text-dark);
+        }
+
+        .radio-group input[type="radio"] {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--primary-color);
+            border-radius: 50%;
+            margin-right: 8px;
+            position: relative;
+            outline: none;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        .radio-group input[type="radio"]:checked {
+            border-color: var(--primary-color);
+            background-color: var(--primary-color);
+        }
+
+        .radio-group input[type="radio"]:checked::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: white;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.1s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: #E0E0E0;
+            color: var(--text-dark);
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background: #D0D0D0;
+        }
+
+        /* --- Chart Area --- */
+        .chart-container {
+            width: 100%;
+            max-width: 500px; /* Adjust as needed */
+            margin: 20px auto 0 auto;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* --- Table --- */
+        .table-container {
+            overflow-x: auto; /* For responsive tables */
+        }
+
+        #transactionTable {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+            min-width: 600px; /* Ensure table is readable on smaller screens */
+        }
+
+        #transactionTable thead th {
+            background: var(--primary-color);
+            color: white;
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid var(--primary-dark);
+        }
+
+        #transactionTable tbody tr {
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.2s;
+        }
+
+        #transactionTable tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        #transactionTable tbody tr:hover {
+            background: var(--background-light);
+        }
+
+        #transactionTable td {
+            padding: 12px 15px;
+            vertical-align: middle;
+        }
+
+        .income-text {
+            color: var(--success-color);
+            font-weight: 500;
+        }
+
+        .expense-text {
+            color: var(--danger-color);
+            font-weight: 500;
+        }
+
+        /* --- Filter Section --- */
+        .filter-section {
+            display: flex;
+            gap: 15px;
+            align-items: flex-end;
+            margin-bottom: 20px;
+        }
+
+        .filter-section .form-group {
+            flex: 1; /* Allow date inputs to grow */
+            margin-bottom: 0; /* Remove default margin */
+        }
+
+        .filter-section .btn-primary {
+            width: auto; /* Reset width for filter button */
+            padding: 12px 20px;
+            font-size: 1rem;
+        }
+
+        /* --- Responsive Adjustments --- */
+        @media (max-width: 992px) {
+            body {
+                flex-direction: column; /* Stack sidebar and main content */
+            }
+
+            .sidebar {
+                width: 100%;
+                padding: 15px 20px;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+                flex-direction: row; /* Layout sidebar horizontally for smaller screens */
+                flex-wrap: wrap; /* Allow wrapping */
+                justify-content: space-around;
+                gap: 15px;
+            }
+
+            .sidebar-header {
+                width: 100%;
+                text-align: left;
+                margin-bottom: 10px;
+                font-size: 1.3rem;
+            }
+
+            .sidebar-nav {
+                width: 100%; /* Full width for nav items */
+            }
+            .sidebar-nav ul {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 10px;
+            }
+            .sidebar-nav li {
+                margin-bottom: 0;
+            }
+            .sidebar-nav a {
+                padding: 8px 12px;
+                font-size: 0.9rem;
+            }
+            .sidebar-nav a i {
+                margin-right: 5px;
+            }
+
+            .summary-card {
+                width: 100%;
+            }
+
+            .main-content {
+                padding: 20px;
+            }
+            .top-bar {
+                margin-bottom: 15px;
+            }
+            .filter-section {
+                flex-direction: column;
+                gap: 10px;
+                align-items: stretch;
+            }
+            .filter-section .form-group {
+                width: 100%;
+            }
+            .filter-section .btn-primary {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                flex-direction: column; /* Stack sidebar items vertically again */
+                align-items: center;
+                gap: 20px;
+            }
+            .sidebar-nav ul {
+                flex-direction: column;
+            }
+            .sidebar-section-title {
+                text-align: center;
+                margin-bottom: 10px;
+            }
+            .chart-container {
+                max-width: 300px; /* Smaller chart for smaller screens */
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 15px;
+                gap: 20px;
+            }
+            .card {
+                padding: 20px;
+            }
+            .card h2, .card h3 {
+                font-size: 1.2rem;
+                margin-bottom: 15px;
+            }
+            input[type="number"], input[type="text"], input[type="date"], select, textarea {
+                width: calc(100% - 20px);
+                padding: 10px;
+            }
+            .btn-primary {
+                padding: 10px 20px;
+                font-size: 1rem;
+            }
+            #transactionTable thead th, #transactionTable tbody td {
+                padding: 10px;
+            }
+            .dropdown-menu {
+                min-width: 120px;
+            }
+        }
+    </style>
 </head>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <body>
-  
-<button id="logoutBtn" style="float: right;">🚪 Đăng xuất</button>
+    <div class="sidebar">
+        <div class="sidebar-header">💰 Quản lý Chi tiêu</div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="#" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="#"><i class="fas fa-list-alt"></i> Giao dịch</a></li>
+                <li><a href="#"><i class="fas fa-chart-line"></i> Báo cáo</a></li>
+                <li><a href="#"><i class="fas fa-cog"></i> Cài đặt</a></li>
+            </ul>
+        </nav>
 
-  <h2>💰 Thêm Giao dịch mới</h2>
-  <form id="transactionForm">
-    <input type="number" id="amount" placeholder="Số tiền (VND)" required>
-    <select id="type">
-      <option value="income">Thu nhập</option>
-      <option value="expense">Chi tiêu</option>
-    </select>
-    <input type="text" id="category" placeholder="Danh mục (ví dụ: Ăn uống, Di chuyển...)" required>
-    <input type="date" id="date" required>
-    <textarea id="note" placeholder="Ghi chú..."></textarea>
-    <button type="submit">➕ Thêm Giao dịch</button>
-  </form>
-<section id="summaryBox" style="margin-top: 20px;">
-  <h3>📊 Thống kê tháng <span id="currentMonth"></span></h3>
-  <p>✅ Tổng thu nhập: <strong id="totalIncome">0</strong> VND</p>
-  <p>❌ Tổng chi tiêu: <strong id="totalExpense">0</strong> VND</p>
-</section>
-<h3>📊 Biểu đồ thu vs chi</h3>
-<canvas id="pieChart" width="400" height="400"></canvas>
-<h3>📅 Lọc theo thời gian</h3>
-<input type="date" id="startDate">
-<input type="date" id="endDate">
-<button onclick="filterByDate()">Lọc</button>
+        <h3 class="sidebar-section-title">📊 Thống kê tháng <span id="currentMonth"></span></h3>
+        <div class="summary-card">
+            <p>Thu nhập: <strong id="totalIncome" class="summary-income">0</strong></p>
+            <p>Chi tiêu: <strong id="totalExpense" class="summary-expense">0</strong></p>
+            <p>Số dư: <strong id="balance" class="summary-balance">0</strong></p>
+        </div>
 
-  <h2>📋 Danh sách Giao dịch</h2>
-  <table id="transactionTable">
-    <thead>
-      <tr>
-        <th>Ngày</th>
-        <th>Loại</th>
-        <th>Danh mục</th>
-        <th>Số tiền (VND)</th>
-        <th>Ghi chú</th>
-      </tr>
-    </thead>
-    <tbody>
-      <!-- Dữ liệu giao dịch sẽ hiển thị tại đây -->
-    </tbody>
-  </table>
+        <h3 class="sidebar-section-title">📈 Biểu đồ Thu vs Chi</h3>
+        <div class="chart-container">
+            <canvas id="pieChart"></canvas>
+        </div>
+    </div>
 
-  <script>
-    // Đặt trong <script> đầu trang dashboard.html
-if (!localStorage.getItem("token")) {
-  alert("Bạn chưa đăng nhập!");
-  window.location.href = "login.html";
-}
+    <div class="main-content">
+        <div class="top-bar">
+            <div class="user-info" id="userInfoDropdown">
+                <button>
+                    <i class="fas fa-user-circle"></i> User Name <i class="fas fa-caret-down"></i>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><button><i class="fas fa-user"></i> Hồ sơ</button></li>
+                    <li><button><i class="fas fa-wrench"></i> Cài đặt tài khoản</button></li>
+                    <li><button id="logoutBtn" class="logout-btn-item"><i class="fas fa-sign-out-alt"></i> Đăng xuất</button></li>
+                </ul>
+            </div>
+        </div>
 
-    // Load danh sách giao dịch
-    window.onload = function() {
-      const userId = 1; // Tạm thời cố định user_id
-      fetch(`http://localhost:3000/api/transactions?user_id=${userId}`)
-        .then(res => res.json())
-        .then(data => {
-          const tbody = document.querySelector("#transactionTable tbody");
-          tbody.innerHTML = '';
-          data.forEach(tran => {
-            const row = `<tr>
-              <td>${tran.date}</td>
-              <td>${tran.type === 'income' ? 'Thu nhập' : 'Chi tiêu'}</td>
-              <td>${tran.category}</td>
-              <td>${tran.amount.toLocaleString()}</td>
-              <td>${tran.note}</td>
-            </tr>`;
-            tbody.innerHTML += row;
-          });
+        <div class="card">
+            <h2>➕ Thêm Giao dịch mới</h2>
+            <form id="transactionForm">
+                <div class="form-group">
+                    <label for="amount">Số tiền (VND)</label>
+                    <input type="number" id="amount" placeholder="0" required min="1" step="any">
+                </div>
+
+                <div class="form-group">
+                    <label>Loại giao dịch</label>
+                    <div class="radio-group">
+                        <label for="typeIncome">
+                            <input type="radio" id="typeIncome" name="transactionType" value="income" checked> Thu nhập
+                        </label>
+                        <label for="typeExpense">
+                            <input type="radio" id="typeExpense" name="transactionType" value="expense"> Chi tiêu
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="category">Danh mục</label>
+                    <input type="text" id="category" placeholder="Ví dụ: Ăn uống, Di chuyển, Lương..." required>
+                </div>
+
+                <div class="form-group">
+                    <label for="date">Ngày</label>
+                    <input type="date" id="date" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="note">Ghi chú</label>
+                    <textarea id="note" placeholder="Thêm ghi chú chi tiết..."></textarea>
+                </div>
+
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-plus"></i> Thêm Giao dịch
+                </button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h3>📅 Lọc Giao dịch</h3>
+            <div class="filter-section">
+                <div class="form-group">
+                    <label for="startDate">Từ ngày</label>
+                    <input type="date" id="startDate">
+                </div>
+                <div class="form-group">
+                    <label for="endDate">Đến ngày</label>
+                    <input type="date" id="endDate">
+                </div>
+                <button onclick="filterByDate()" class="btn-primary"><i class="fas fa-filter"></i> Lọc</button>
+            </div>
+        </div>
+
+        <div class="card table-container">
+            <h3>📋 Danh sách Giao dịch</h3>
+            <table id="transactionTable">
+                <thead>
+                    <tr>
+                        <th>Ngày</th>
+                        <th>Loại</th>
+                        <th>Danh mục</th>
+                        <th>Số tiền (VND)</th>
+                        <th>Ghi chú</th>
+                        <th>Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script>
+        const API_BASE_URL = 'http://localhost:3000/api';
+        let transactions = [];
+        let pieChartInstance = null;
+
+        // --- Authentication Check ---
+        if (!localStorage.getItem("token")) {
+            Toastify({
+                text: "Bạn chưa đăng nhập! Đang chuyển hướng...",
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "linear-gradient(to right, #ff416c, #ff4b2b)"
+            }).showToast();
+            setTimeout(() => {
+                window.location.href = "login.html";
+            }, 3000);
+        }
+
+        const currentUserId = localStorage.getItem("user_id") || 1; // Fallback to 1 if not found
+
+        // --- Date Picker Initialization ---
+        flatpickr("#date", {
+            dateFormat: "Y-m-d",
+            defaultDate: "today"
         });
-    };
+        flatpickr("#startDate", {
+            dateFormat: "Y-m-d"
+        });
+        flatpickr("#endDate", {
+            dateFormat: "Y-m-d"
+        });
 
-    // Xử lý thêm giao dịch
-    document.getElementById('transactionForm').addEventListener('submit', function(e) {
-      e.preventDefault();
+        // --- Helper Function for Formatting Currency ---
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+        }
 
-      const user_id = 1;
-      const amount = document.getElementById('amount').value;
-      const type = document.getElementById('type').value;
-      const category = document.getElementById('category').value;
-      const date = document.getElementById('date').value;
-      const note = document.getElementById('note').value;
+        // --- Fetch and Display Transactions ---
+        async function fetchAndDisplayTransactions(startDate = null, endDate = null) {
+            let url = `${API_BASE_URL}/transactions?user_id=${currentUserId}`;
+            if (startDate) url += `&startDate=${startDate}`;
+            if (endDate) url += `&endDate=${endDate}`;
 
-      fetch('http://localhost:3000/api/transactions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          user_id, category, type, amount, note, date
-        })
-      })
-      .then(res => res.json())
-      .then(data => {
-        alert(data.message);
-        location.reload();
-      });
-    });
-    document.getElementById("logoutBtn")?.addEventListener("click", function () {
-  if (confirm("Bạn có chắc muốn đăng xuất không?")) {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user_id");
-    window.location.href = "login.html";
-  }
-});
+            try {
+                const response = await fetch(url, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                transactions = data;
+                renderTransactionTable(transactions);
+                updateSummary(transactions);
+                updatePieChart(transactions);
+            } catch (error) {
+                console.error("Error fetching transactions:", error);
+                Toastify({
+                    text: "Lỗi khi tải dữ liệu giao dịch.",
+                    duration: 3000,
+                    close: true,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "linear-gradient(to right, #ff416c, #ff4b2b)"
+                }).showToast();
+            }
+        }
 
-  </script>
+        function renderTransactionTable(data) {
+            const tbody = document.querySelector("#transactionTable tbody");
+            tbody.innerHTML = '';
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px; color: var(--text-light);">Không có giao dịch nào.</td></tr>';
+                return;
+            }
+            data.forEach(tran => {
+                const row = document.createElement('tr');
+                const typeClass = tran.type === 'income' ? 'income-text' : 'expense-text';
+                const typeText = tran.type === 'income' ? 'Thu nhập' : 'Chi tiêu';
+                const formattedAmount = formatCurrency(tran.amount);
 
+                row.innerHTML = `
+                    <td>${tran.date}</td>
+                    <td class="${typeClass}">${typeText}</td>
+                    <td>${tran.category}</td>
+                    <td>${formattedAmount}</td>
+                    <td>${tran.note || 'N/A'}</td>
+                    <td>
+                        <button class="btn-secondary btn-action-edit" data-id="${tran.id}"><i class="fas fa-edit"></i></button>
+                        <button class="btn-secondary btn-action-delete" data-id="${tran.id}"><i class="fas fa-trash-alt"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            // Add event listeners for edit/delete buttons
+            document.querySelectorAll('.btn-action-edit').forEach(button => {
+                button.addEventListener('click', (e) => editTransaction(e.currentTarget.dataset.id));
+            });
+            document.querySelectorAll('.btn-action-delete').forEach(button => {
+                button.addEventListener('click', (e) => deleteTransaction(e.currentTarget.dataset.id));
+            });
+        }
+
+        // --- Update Summary Box ---
+        function updateSummary(data) {
+            let totalIncome = 0;
+            let totalExpense = 0;
+            data.forEach(tran => {
+                if (tran.type === 'income') {
+                    totalIncome += tran.amount;
+                } else {
+                    totalExpense += tran.amount;
+                }
+            });
+            document.getElementById('totalIncome').textContent = formatCurrency(totalIncome);
+            document.getElementById('totalExpense').textContent = formatCurrency(totalExpense);
+            document.getElementById('balance').textContent = formatCurrency(totalIncome - totalExpense);
+            document.getElementById('currentMonth').textContent = new Date().toLocaleDateString('vi-VN', { month: 'long', year: 'numeric' });
+        }
+
+        // --- Update Pie Chart ---
+        function updatePieChart(data) {
+            let totalIncome = 0;
+            let totalExpense = 0;
+            data.forEach(tran => {
+                if (tran.type === 'income') {
+                    totalIncome += tran.amount;
+                } else {
+                    totalExpense += tran.amount;
+                }
+            });
+
+            const ctx = document.getElementById('pieChart').getContext('2d');
+            if (pieChartInstance) {
+                pieChartInstance.destroy(); // Destroy previous chart instance
+            }
+
+            pieChartInstance = new Chart(ctx, {
+                type: 'doughnut', // Changed to doughnut for a modern look
+                data: {
+                    labels: ['Thu nhập', 'Chi tiêu'],
+                    datasets: [{
+                        data: [totalIncome, totalExpense],
+                        backgroundColor: [
+                            '#4CAF50', // Green for income
+                            '#F44336'  // Red for expense
+                        ],
+                        hoverOffset: 10,
+                        borderWidth: 2,
+                        borderColor: 'white'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                font: {
+                                    size: 14,
+                                    family: 'Inter'
+                                },
+                                usePointStyle: true,
+                                padding: 20
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed) {
+                                        label += formatCurrency(context.parsed);
+                                    }
+                                    return label;
+                                }
+                            },
+                            bodyFont: {
+                                size: 14,
+                                family: 'Inter'
+                            },
+                            titleFont: {
+                                size: 14,
+                                family: 'Inter'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // --- Add Transaction ---
+        document.getElementById('transactionForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const amount = parseFloat(document.getElementById('amount').value);
+            const type = document.querySelector('input[name="transactionType"]:checked').value;
+            const category = document.getElementById('category').value;
+            const date = document.getElementById('date').value;
+            const note = document.getElementById('note').value;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/transactions`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({
+                        user_id: currentUserId, category, type, amount, note, date
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Lỗi khi thêm giao dịch.');
+                }
+
+                const data = await response.json();
+                Toastify({
+                    text: data.message,
+                    duration: 3000,
+                    close: true,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "linear-gradient(to right, #00b09b, #96c93d)"
+                }).showToast();
+
+                document.getElementById('transactionForm').reset(); // Clear form
+                document.getElementById('typeIncome').checked = true; // Reset radio
+                flatpickr("#date").setDate(new Date()); // Reset date picker
+                fetchAndDisplayTransactions(); // Reload transactions
+            } catch (error) {
+                console.error("Error adding transaction:", error);
+                Toastify({
+                    text: error.message,
+                    duration: 3000,
+                    close: true,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "linear-gradient(to right, #ff416c, #ff4b2b)"
+                }).showToast();
+            }
+        });
+
+        // --- Filter Transactions by Date ---
+        function filterByDate() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            fetchAndDisplayTransactions(startDate, endDate);
+        }
+
+        // --- Edit Transaction (Placeholder) ---
+        function editTransaction(transactionId) {
+            Toastify({
+                text: `Chức năng chỉnh sửa cho ID ${transactionId} đang được phát triển!`,
+                duration: 3000,
+                close: true,
+                gravity: "bottom",
+                position: "center",
+                backgroundColor: "linear-gradient(to right, #ffafbd, #ffc3a0)"
+            }).showToast();
+            // Implement actual edit logic here (e.g., populate form, open modal)
+        }
+
+        // --- Delete Transaction ---
+        async function deleteTransaction(transactionId) {
+            if (!confirm(`Bạn có chắc chắn muốn xóa giao dịch ID ${transactionId} này không?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/transactions/${transactionId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Lỗi khi xóa giao dịch.');
+                }
+
+                const data = await response.json();
+                Toastify({
+                    text: data.message,
+                    duration: 3000,
+                    close: true,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "linear-gradient(to right, #00b09b, #96c93d)"
+                }).showToast();
+
+                fetchAndDisplayTransactions(); // Reload transactions
+            } catch (error) {
+                console.error("Error deleting transaction:", error);
+                Toastify({
+                    text: error.message,
+                    duration: 3000,
+                    close: true,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "linear-gradient(to right, #ff416c, #ff4b2b)"
+                }).showToast();
+            }
+        }
+
+        // --- Logout Logic ---
+        document.getElementById("logoutBtn")?.addEventListener("click", function () {
+            if (confirm("Bạn có chắc muốn đăng xuất không?")) {
+                localStorage.removeItem("token");
+                localStorage.removeItem("user_id");
+                Toastify({
+                    text: "Đã đăng xuất thành công!",
+                    duration: 2000,
+                    close: true,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "linear-gradient(to right, #00b09b, #96c93d)"
+                }).showToast();
+                setTimeout(() => {
+                    window.location.href = "login.html";
+                }, 2000);
+            }
+        });
+
+        // --- User Info Dropdown Toggle ---
+        document.getElementById('userInfoDropdown').addEventListener('click', function() {
+            this.classList.toggle('active');
+        });
+        document.addEventListener('click', function(event) {
+            const userInfoDropdown = document.getElementById('userInfoDropdown');
+            if (userInfoDropdown && !userInfoDropdown.contains(event.target)) {
+                userInfoDropdown.classList.remove('active');
+            }
+        });
+
+        // Initial load
+        window.addEventListener('DOMContentLoaded', () => {
+            fetchAndDisplayTransactions();
+        });
+    </script>
 </body>
 </html>

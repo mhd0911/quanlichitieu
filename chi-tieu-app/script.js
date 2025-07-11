@@ -3,27 +3,27 @@ function switchToRegister() {
   document.getElementById("registerBox").style.display = "block";
 }
 
-// document.getElementById("transactionForm")?.addEventListener("submit", function (e) {
-//   e.preventDefault();
-//   const amount = document.getElementById("amount").value;
-//   const type = document.getElementById("type").value;
-//   const category = document.getElementById("category").value;
-//   const date = document.getElementById("date").value;
-//   const note = document.getElementById("note").value;
+document.getElementById("transactionForm")?.addEventListener("submit", function (e) {
+  e.preventDefault();
+  const amount = document.getElementById("amount").value;
+  const type = document.getElementById("type").value;
+  const category = document.getElementById("category").value;
+  const date = document.getElementById("date").value;
+  const note = document.getElementById("note").value;
 
-//   const row = `<tr>
-//     <td>${date}</td>
-//     <td>${type}</td>
-//     <td>${category}</td>
-//     <td>${amount}</td>
-//     <td>${note}</td>
-//   </tr>`;
+  const row = `<tr>
+    <td>${date}</td>
+    <td>${type}</td>
+    <td>${category}</td>
+    <td>${amount}</td>
+    <td>${note}</td>
+  </tr>`;
 
-//   document.querySelector("#transactionTable tbody").innerHTML += row;
+  document.querySelector("#transactionTable tbody").innerHTML += row;
 
-//   // Reset form
-//   e.target.reset();
-// });
+  // Reset form
+  e.target.reset();
+});
 document.getElementById("loginBtn")?.addEventListener("click", function (e) {
   e.preventDefault();
 
@@ -134,11 +134,28 @@ function filterByDate() {
     });
 }
 const express = require('express');
-const cors = require('cors'); // Thêm dòng này
+const cors = require('cors'); 
 const app = express();
 
 app.use(cors({
     origin: 'http://127.0.0.1:5500/chi-tieu-app/login.html' // Chỉ cho phép truy cập từ địa chỉ frontend của bạn
 }));
-app.use(express.json()); // Rất quan trọng để backend đọc được JSON từ request body
+app.use(express.json()); 
 // ... các route API của bạn ...
+
+function deleteTransaction(id) {
+  if (confirm("Bạn có chắc chắn muốn xoá giao dịch này không?")) {
+    fetch(`http://localhost:3000/api/transactions/${id}`, {
+      method: "DELETE",
+    })
+    .then(res => res.json())
+    .then(data => {
+      alert(data.message || "Xoá thành công");
+      location.reload();
+    })
+    .catch(err => {
+      console.error("Lỗi xoá:", err);
+      alert("Không thể xoá giao dịch.");
+    });
+  }
+}
